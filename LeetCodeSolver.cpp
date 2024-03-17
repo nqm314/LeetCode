@@ -948,6 +948,53 @@ class problem930 {
         return slidingWindowsAtMostGoal(nums, goal) - slidingWindowsAtMostGoal(nums, goal - 1);
     }
 };
+
+
+//problem 57. Insert Interval
+class problem57 {
+public:
+    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
+        int n = intervals.size();
+        if (n == 0) return vector<vector<int>> {newInterval};
+        vector<vector<int>> res;
+        int pause;
+        bool flag = false;
+        for (int i = 0; i < n; ++i) {
+            if (newInterval[0] >= intervals[i][0] && newInterval[1] <= intervals[i][1]) return intervals;
+            else if (newInterval[0] > intervals[i][0] && newInterval[0] > intervals[i][1]) {
+                res.push_back(intervals[i]);
+            }
+            else if (newInterval[0] >= intervals[i][0] && newInterval[0] <= intervals[i][1]) {
+                int j = i;
+                while ((j < n) && (newInterval[0] > intervals[j][0] && newInterval[0] < intervals[j][1] || newInterval[1] > intervals[j][0] && newInterval[1] > intervals[j][1])){
+                    j++;
+                }
+                if (j == n) {
+                    if (newInterval[1] <= intervals[j - 1][1]) return intervals;
+                    else res.push_back(vector<int> {intervals[i][0], newInterval[1]});
+                    return res;
+                }
+                if (newInterval[1] < intervals[j][0]) {
+                    res.push_back(vector<int> {intervals[i][0], newInterval[1]});
+                    pause = j;
+                    flag = true;
+                }
+                else {
+                    res.push_back(vector<int> {intervals[i][0], intervals[j][1]});
+                    pause = j + 1;
+                    flag = true;
+                }
+                break;
+            }
+        }   
+        for (pause; pause < n; pause++){
+            res.push_back(intervals[pause]);
+        }
+        if (!flag) res.push_back(newInterval);
+        return res;
+    }
+};
+
     
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
@@ -955,5 +1002,16 @@ class problem930 {
     }
 
 int main() {
-    cout << "I'm Minh. I am studying Bachelors of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).";
+    cout << "I'm Minh. I am studying Bachelors of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).\n";
+
+    //problem 57 test
+    vector<vector<int>> intervals = {{1,5}};
+    vector<int> newInterval = {6,8};
+    problem57 p57;
+    vector<vector<int>> res = p57.insert(intervals, newInterval);
+    for (auto x : res) {
+        cout << "[";
+        for (auto y : x) cout<< y << " ";
+        cout << "] ";
+    }
 }
