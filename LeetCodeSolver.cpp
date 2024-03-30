@@ -954,48 +954,100 @@ class problem930 {
 class problem57 {
 public:
     vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
-        int n = intervals.size();
+        int n = intervals.size(), i = 0;
         if (n == 0) return vector<vector<int>> {newInterval};
         vector<vector<int>> res;
-        int pause;
-        bool flag = false;
-        for (int i = 0; i < n; ++i) {
-            if (newInterval[0] >= intervals[i][0] && newInterval[1] <= intervals[i][1]) return intervals;
-            else if (newInterval[0] > intervals[i][0] && newInterval[0] > intervals[i][1]) {
-                res.push_back(intervals[i]);
-            }
-            else if (newInterval[0] >= intervals[i][0] && newInterval[0] <= intervals[i][1]) {
-                int j = i;
-                while ((j < n) && (newInterval[0] > intervals[j][0] && newInterval[0] < intervals[j][1] || newInterval[1] > intervals[j][0] && newInterval[1] > intervals[j][1])){
-                    j++;
-                }
-                if (j == n) {
-                    if (newInterval[1] <= intervals[j - 1][1]) return intervals;
-                    else res.push_back(vector<int> {intervals[i][0], newInterval[1]});
-                    return res;
-                }
-                if (newInterval[1] < intervals[j][0]) {
-                    res.push_back(vector<int> {intervals[i][0], newInterval[1]});
-                    pause = j;
-                    flag = true;
-                }
-                else {
-                    res.push_back(vector<int> {intervals[i][0], intervals[j][1]});
-                    pause = j + 1;
-                    flag = true;
-                }
-                break;
-            }
-        }   
-        for (pause; pause < n; pause++){
-            res.push_back(intervals[pause]);
+        while (i < n && newInterval[0] > intervals[i][1]) {
+            res.push_back(intervals[i]);
+            i++;
         }
-        if (!flag) res.push_back(newInterval);
+        while (i < n && newInterval[1] >= intervals[i][0]) {
+            newInterval[0] = min(newInterval[0], intervals[i][0]);
+            newInterval[1] = max(newInterval[1], intervals[i][1]);
+            i++;
+        }
+        res.push_back(newInterval);
+        while (i < n) {
+            res.push_back(intervals[i++]);
+        }
         return res;
     }
 };
 
-    
+
+//problem 2958. length-of-longest-subarray-with-at-most-k-frequency
+class problem2958 {
+public:
+    int maxSubarrayLength(vector<int>& nums, int k) {
+        map<int, int> mp;
+        int left = 0, right = 0, length = 0;
+        while (left <= right && right < nums.size()) {
+            mp[nums[right]]++;
+            while (mp[nums[right]] > k) {
+                mp[nums[left]]--;
+                left++;
+            }
+            length = max(length, right - left + 1);
+            right++;
+        }
+        return length;
+    }
+};
+
+
+//problem 2962. Count-subarrays-where-max-element-appears-at-least-k-times
+class problem2962 {
+public:
+    long long countSubarrays(vector<int>& nums, int k) {
+        map<int, int> mp;
+        int maxEle = 0, left = 0, right = 0;
+        long long cnt = 0;
+        for (int i = 0; i < nums.size(); ++i) {
+            maxEle = max(maxEle, nums[i]);
+        }
+        while (left <= right && right < nums.size()) {
+            mp[nums[right]]++;
+            while (mp[maxEle] == k) {
+                if (nums[left] == maxEle) mp[nums[left]]--;
+                left++;
+            }
+            cnt += left;
+            right++;
+        }
+        return cnt;
+    }
+};
+
+
+//problem 992. Subarrays with K Different Integers
+class problem992 {
+public:
+    int slidingWindowAtMost(vector<int>& nums, int k) {
+        unordered_map<int, int> mp;
+        int left = 0, right = 0, cnt = 0;
+        while (left <= right && right < nums.size()) {
+            mp[nums[right]]++;
+            while (mp.size() > k) {
+                mp[nums[left]]--;
+                if (mp[nums[left]] == 0) {
+                    mp.erase(nums[left]);
+                }
+                left++;
+            }
+            cnt += right - left + 1;
+            right++;
+        }
+        return cnt;
+    }
+
+    int subarraysWithKDistinct(vector<int>& nums, int k) {
+        ios_base::sync_with_stdio(0);
+        cin.tie(0);
+        cout.tie(0);
+        return slidingWindowAtMost(nums, k) - slidingWindowAtMost(nums, k - 1);
+    }
+};
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
@@ -1005,13 +1057,25 @@ int main() {
     cout << "I'm Minh. I am studying Bachelors of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).\n";
 
     //problem 57 test
-    vector<vector<int>> intervals = {{1,5}};
-    vector<int> newInterval = {6,8};
-    problem57 p57;
-    vector<vector<int>> res = p57.insert(intervals, newInterval);
-    for (auto x : res) {
-        cout << "[";
-        for (auto y : x) cout<< y << " ";
-        cout << "] ";
-    }
+    // vector<vector<int>> intervals = {{1,5}};
+    // vector<int> newInterval = {6,8};
+    // problem57 p57;
+    // vector<vector<int>> res = p57.insert(intervals, newInterval);
+    // for (auto x : res) {
+    //     cout << "[";
+    //     for (auto y : x) cout<< y << " ";
+    //     cout << "] ";
+    // }
+
+    // //problem 2958 test
+    // vector<int> nums = {1,2,3,1,3,2,2,1};
+    // int k = 2;
+    // problem2958 p2958;
+    // cout << p2958.maxSubarrayLength(nums, k) << endl;
+
+    //problem 2962 test
+    vector<int> nums = {1,3,2,3,3};
+    int k = 2;
+    problem2962 p2962;
+    cout << p2962.countSubarrays(nums, k) << endl;
 }
