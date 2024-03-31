@@ -1048,6 +1048,22 @@ public:
     }
 };
 
+
+//problem 2444. Count Subarrays with Fixed Bounds 
+class problem2444 {
+public:
+    long long countSubarrays(vector<int>& A, int minK, int maxK) {
+        long res = 0, jbad = -1, jmin = -1, jmax = -1, n = A.size();
+        for (int i = 0; i < n; ++i) {
+            if (A[i] < minK || A[i] > maxK) jbad = i;
+            if (A[i] == minK) jmin = i;
+            if (A[i] == maxK) jmax = i;
+            res += max(0L, min(jmin, jmax) - jbad);
+        }
+        return res;
+    }
+};
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
@@ -1074,8 +1090,14 @@ int main() {
     // cout << p2958.maxSubarrayLength(nums, k) << endl;
 
     //problem 2962 test
-    vector<int> nums = {1,3,2,3,3};
-    int k = 2;
-    problem2962 p2962;
-    cout << p2962.countSubarrays(nums, k) << endl;
+    // vector<int> nums = {1,3,2,3,3};
+    // int k = 2;
+    // problem2962 p2962;
+    // cout << p2962.countSubarrays(nums, k) << endl;
+
+    //problem 2444 test
+    vector<int> nums = {1,3,5,2,7,5};
+    int minK = 1, maxK = 5;
+    problem2444 p2444;
+    cout << p2444.countSubarrays(nums, minK, maxK);
 }
