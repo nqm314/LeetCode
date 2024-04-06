@@ -1064,6 +1064,21 @@ public:
     }
 };
 
+
+//problem 205. Isomorphic Strings
+class problem205 {
+public:
+    bool isIsomorphic(string s, string t) {
+        if (s.size() != t.size()) return false;
+        unordered_map<char, char> mp;
+        for (int i = 0; i < s.size(); ++i) {
+            if (!mp[s[i]]) mp[s[i]] = t[i];
+            else if (t[i] != mp[s[i]]) return false;
+        }
+        return true;
+    }
+};
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
@@ -1096,8 +1111,13 @@ int main() {
     // cout << p2962.countSubarrays(nums, k) << endl;
 
     //problem 2444 test
-    vector<int> nums = {1,3,5,2,7,5};
-    int minK = 1, maxK = 5;
-    problem2444 p2444;
-    cout << p2444.countSubarrays(nums, minK, maxK);
+    // vector<int> nums = {1,3,5,2,7,5};
+    // int minK = 1, maxK = 5;
+    // problem2444 p2444;
+    // cout << p2444.countSubarrays(nums, minK, maxK);
+
+    //problem 205 test
+    string s = "foo", t = "bar";
+    problem205 p205;
+    cout << p205.isIsomorphic(s, t);
 }
