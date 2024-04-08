@@ -1079,6 +1079,43 @@ public:
     }
 };
 
+//problem 1700. Number of Students Unable to Eat Lunch
+class problem1700 {
+public:
+    int countStudents(vector<int>& students, vector<int>& sandwiches) {
+        int nb_one_stu = 0, nb_zero_stu = 0, nb_one_sand = 0, nb_zero_sand = 0;
+        for (int i = 0; i < students.size(); ++i) {
+            if (students[i] == 1) nb_one_stu++;
+            else nb_zero_stu++;
+        }
+        for (int i = 0; i < sandwiches.size(); ++i) {
+            if (sandwiches[i] == 1) nb_one_sand++;
+            else nb_zero_sand++;
+        }
+        int i = 0, j = 0;
+        while (i < students.size() && j < sandwiches.size()) {
+            if (students[i] == sandwiches[j]) {
+                if (students[i] == 1) nb_one_stu--, nb_one_sand--;
+                else nb_zero_stu--, nb_zero_sand--;
+                i++, j++;
+            }
+            else {
+                if ((!nb_one_stu && sandwiches[j] == 1)) {
+                    return nb_zero_stu;
+                }
+                else if (!nb_zero_stu && sandwiches[j] == 0) {
+                    return nb_one_stu;
+                }
+                else {
+                    students.push_back(students[i]);
+                    i++;
+                }
+            }
+        }
+        return 0;
+    }
+};
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
@@ -1116,8 +1153,13 @@ int main() {
     // problem2444 p2444;
     // cout << p2444.countSubarrays(nums, minK, maxK);
 
-    //problem 205 test
-    string s = "foo", t = "bar";
-    problem205 p205;
-    cout << p205.isIsomorphic(s, t);
+    // //problem 205 test
+    // string s = "foo", t = "bar";
+    // problem205 p205;
+    // cout << p205.isIsomorphic(s, t);
+
+    //problem 1700 test
+    vector<int> students = {1,1,1,0,0,1}, sandwiches = {1,0,0,0,1,1};
+    problem1700 p1700;
+    cout << p1700.countStudents(students, sandwiches);
 }
