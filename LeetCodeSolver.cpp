@@ -1116,6 +1116,44 @@ public:
     }
 };
 
+//problem 623. Add One Row to Tree
+class problem623 {
+public:
+    TreeNode* addOneRow(TreeNode* root, int val, int depth) {
+        if (depth == 1) {
+            TreeNode* newroot;
+            return newroot = new TreeNode(val, root, nullptr);
+        }
+        queue<TreeNode*> q;
+        q.push(root);
+        int cnt = 0;
+
+        while (!q.empty()) {
+            int sz = q.size();
+            cnt++;
+            while (sz--) {
+                TreeNode* curr = q.front();
+                q.pop();
+
+                if (cnt != depth - 1) {
+                    if (curr->left) q.push(curr->left);
+                    if (curr->right) q.push(curr->right);
+                }
+                else {
+                    TreeNode* newnodeleft = new TreeNode(val);
+                    newnodeleft->left = curr->left;
+                    curr->left = newnodeleft;
+
+                    TreeNode* newnoderight = new TreeNode(val);
+                    newnoderight->right = curr->right;
+                    curr->right = newnoderight;
+                }
+            }
+        }
+        return root;
+    }
+};
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
