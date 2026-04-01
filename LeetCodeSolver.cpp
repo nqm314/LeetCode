@@ -1154,6 +1154,14 @@ public:
     }
 };
 
+//problem 2751. Robot Collisions
+class problem2751 {
+    public:
+    vector<int> survivedRobotsHealths(vector<int>& positions, vector<int>& healths, string directions) {
+           
+    }
+}
+
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
         cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
