@@ -1157,10 +1157,76 @@ public:
 //problem 2751. Robot Collisions
 class problem2751 {
     public:
-    vector<int> survivedRobotsHealths(vector<int>& positions, vector<int>& healths, string directions) {
-           
+    vector<int> survivedRobotsHealths(vector<int>& positions,
+                                      vector<int>& healths, string directions) {
+        int n = positions.size();
+        vector<int> indices(n), result;
+        stack<int> stack;
+
+        for (int index = 0; index < n; ++index) {
+            indices[index] = index;
+        }
+
+        sort(indices.begin(), indices.end(),
+             [&](int lhs, int rhs) { return positions[lhs] < positions[rhs]; });
+
+        for (int currentIndex : indices) {
+            // Add right-moving robots to the stack
+            if (directions[currentIndex] == 'R') {
+                stack.push(currentIndex);
+            } else {
+                while (!stack.empty() && healths[currentIndex] > 0) {
+                    // Pop the top robot from the stack for collision check
+                    int topIndex = stack.top();
+                    stack.pop();
+
+                    // Top robot survives, current robot is destroyed
+                    if (healths[topIndex] > healths[currentIndex]) {
+                        healths[topIndex] -= 1;
+                        healths[currentIndex] = 0;
+                        stack.push(topIndex);
+                    } else if (healths[topIndex] < healths[currentIndex]) {
+                        // Current robot survives, top robot is destroyed
+                        healths[currentIndex] -= 1;
+                        healths[topIndex] = 0;
+                    } else {
+                        // Both robots are destroyed
+                        healths[currentIndex] = 0;
+                        healths[topIndex] = 0;
+                    }
+                }
+            }
+        }
+
+        // Collect surviving robots
+        for (int index = 0; index < n; ++index) {
+            if (healths[index] > 0) {
+                result.push_back(healths[index]);
+            }
+        }
+        return result;
     }
-}
+};
+
+//problem 3740. Minimum Distance Between Three Equal Elements I
+class problem3740 {
+    public:
+        int minimumDistance(vector<int>& nums) {
+            unordered_map<int,int>idx;
+            vector<int> next(nums.size(), -1);
+            int res = INT_MAX;
+            for (int i = nums.size()-1; i>=0; --i) {
+                if (idx.count(nums[i])) {
+                    next[i] = idx[nums[i]];
+                }
+                idx[nums[i]] = i;
+            }
+            for (int i = 0; i < nums.size(); ++i) {
+                if (next[i] > 0 && next[next[i]] > 0) res = min(res, next[next[i]]-i);
+            }
+            return res == INT_MAX ? -1: 2*res;
+        }
+};
 
     void nam_moi_Giap_Thin() {
         cout << "Chuc mung nam moi Giap Thin" << endl;
@@ -1168,7 +1234,7 @@ class problem2751 {
     }
 
 int main() {
-    cout << "I'm Minh. I am studying Bachelors of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).\n";
+    cout << "I'm Minh. I am studying Bachelor of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).\n";
 
     //problem 57 test
     // vector<vector<int>> intervals = {{1,5}};
@@ -1205,7 +1271,22 @@ int main() {
     // cout << p205.isIsomorphic(s, t);
 
     //problem 1700 test
-    vector<int> students = {1,1,1,0,0,1}, sandwiches = {1,0,0,0,1,1};
-    problem1700 p1700;
-    cout << p1700.countStudents(students, sandwiches);
+    // vector<int> students = {1,1,1,0,0,1}, sandwiches = {1,0,0,0,1,1};
+    // problem1700 p1700;
+    // cout << p1700.countStudents(students, sandwiches);
+
+    //problem 2751 test
+    // vector<int> positions = {5,4,3,2,1}, healths = {2,17,9,15,10};
+    // string directions = "RRRRR";
+    // problem2751 p2751;
+    // vector<int> res = p2751.survivedRobotsHealths(positions, healths, directions);
+    // for (int h : res) {
+    //     cout << h << " ";
+    // }
+    // cout << endl;
+
+    //problem 3740 test
+    vector<int> nums = {1,1,2,3,2,1,2};
+    problem3740 p3740;
+    cout << p3740.minimumDistance(nums) << endl;
 }
