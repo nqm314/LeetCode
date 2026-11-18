@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-    class StockSpanner {
-    public:
+class StockSpanner {
+public:
         vector<int> v;
         StockSpanner() {
         }
@@ -1228,10 +1228,474 @@ class problem3740 {
         }
 };
 
-    void nam_moi_Giap_Thin() {
-        cout << "Chuc mung nam moi Giap Thin" << endl;
-        cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
+//problem 3742. Maximum Path Score in a Grid
+class problem3742 {
+public:
+    int maxPathScore(vector<vector<int>>& grid, int k) {
+        int m = grid.size(), n = grid[0].size();
+        vector<vector<vector<int>>> dp(
+            m, vector<vector<int>> (
+                n, vector<int> (k+1, INT_MIN)
+            )
+        );
+        int cost = grid[0][0] == 0 ? 0: 1;
+        if (cost > k) return -1;
+        dp[0][0][cost] = grid[0][0];
+        for (int j = 1; j < n; ++j) {
+            cost = grid[0][j] == 0 ? 0: 1;
+            for (int idx = 0; idx <= k; ++idx) {
+                if (dp[0][j-1][idx] == INT_MIN) continue;
+                if (cost + idx <= k) {
+                    dp[0][j][cost + idx] = dp[0][j - 1][idx] + grid[0][j];
+                }
+            }
+        }
+        for (int i = 1; i < m; ++i) {
+            cost = grid[i][0] == 0 ? 0: 1;
+            for (int idx = 0; idx <= k; ++idx) {
+                if (dp[i - 1][0][idx] == INT_MIN) continue;
+                if (cost + idx <= k) {
+                    dp[i][0][cost + idx] = dp[i - 1][0][idx] + grid[i][0]; 
+                }
+            }
+        }
+        // debug 
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                for (int idx = 0; idx <= k; ++idx) {
+                    cout << "i: " << i << " j: " << j << " idx: " << idx << " -> " << dp[i][j][idx] << endl;
+                }
+            }
+        }
+        //
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                cost = grid[i][j] == 0 ? 0: 1;
+                for (int idx = 0; idx <= k; ++idx) {
+                    if (dp[i][j - 1][idx] == INT_MIN) continue;
+                    if (cost + idx <= k) {
+                        dp[i][j][cost + idx] = max(dp[i][j][cost + idx], dp[i][j-1][idx] + grid[i][j]);
+                    }
+                }
+                for (int idx = 0; idx <= k; ++idx) {
+                    if (dp[i - 1][j][idx] == INT_MIN) continue;
+                    if (cost + idx <= k) {
+                        dp[i][j][cost + idx] = max(dp[i][j][cost + idx], dp[i - 1][j][idx] + grid[i][j]);
+                    }
+                }
+            }
+        }
+
+        int res = INT_MIN;
+        for (int i = 0; i <= k; ++i){
+            res = max(res, dp[m - 1][n - 1][i]);
+        }
+        return res == INT_MIN ? -1 : res;
     }
+};
+
+// Problem 1386. Cinema Seat Allocation
+class problem1386 {
+public:
+    int maxNumberOfFamilies(int n, vector<vector<int>>& reservedSeats) {
+        int res = 0;
+        sort(reservedSeats.begin(), reservedSeats.end());
+        int prevRow = reservedSeats[0][0], emptyRows = n;
+        for (int i = 0; i < reservedSeats.size(); ++i) {
+            bool reservedSet1 = false, reservedSet2 = false, reservedSet3 = false;
+            int currRow = reservedSeats[i][0];
+            while (currRow <= n && currRow == prevRow) {
+                if (reservedSeats[i][1] >= 2 && reservedSeats[i][1] <= 5) reservedSet1 = true;
+                if (reservedSeats[i][1] >= 4 && reservedSeats[i][1] <= 7) reservedSet2 = true;
+                if (reservedSeats[i][1] >= 6 && reservedSeats[i][1] <= 9) reservedSet3 = true;
+                prevRow = currRow;
+                currRow = reservedSeats[i][0];
+                i++;
+            }
+            if (!reservedSet1) res++;
+            if (!reservedSet2) res++;
+            if (!reservedSet3) res++;
+            emptyRows--;
+        }
+        res += emptyRows * 2;
+        return res;
+    }
+};
+
+class problem2265 {
+public:
+    vector<int> sumAndCountInSubtree(TreeNode* root, int &cnt) {
+        if (!root) return {0, 0};
+        cnt++;
+        if (!root->left && !root->right) return {root->val, 1};
+        int sum = root->val;
+        if (root->left) {
+            sum += sumAndCountInSubtree(root->left, cnt)[0];
+        }
+        if (root->right) sum += sumAndCountInSubtree(root->right, cnt)[0];
+        return {sum, cnt};
+    }
+
+    void dfs(TreeNode* root, int &cnt) {
+        int cntNodes = 0;
+        vector<int> res = sumAndCountInSubtree(root, cntNodes);
+        if (res[1] == 0) return;
+        int avg = res[0] / res[1];
+        if (root->val == avg) cnt++;
+        dfs(root->left, cnt);
+        cout << "root->left: " << cnt << endl;
+        dfs(root->right, cnt);
+        cout << "root->right: " << cnt << endl;
+    }
+
+    int averageOfSubtree(TreeNode* root) {
+        int cnt = 0;
+        dfs(root, cnt);
+        return cnt;
+    }
+};
+
+// 1541. 
+class problem1541 {
+public:
+    int minInsertions(string s) {
+        int res = 0;
+        stack<int> st;
+        for (int i = 0; i < s.size(); i++) {
+            if (st.empty()) st.push(i);
+            else if (s[i] == ')' && s[st.top()] == ')') {
+                int curr_top = st.top(); st.pop();
+                if (s[st.top()] == '(') st.pop();
+                else {
+                    st.push(curr_top);
+                    st.push(i);
+                }
+            }  
+            else st.push(i);
+        }
+        cout << "hehe";
+        // now the stack includes non-valid parentheses
+        // while (!st.empty()) {
+        //     if (s[st.top()] == '(') {
+        //         res += 2;
+        //         st.pop();
+        //     }
+        //     else {
+        //         res += 1;
+        //         st.pop();
+        //         st.pop();
+        //     }
+        // }
+        return res;
+    }
+};
+
+// 3619. Count Islands With Value Divisible by K
+class problem3619 {
+    public:
+    int countIslands(vector<vector<int>>& grid, int k) {
+        int n = grid.size(), m = grid[0].size();
+        int res = 0;
+        vector<vector<bool>> visited(n, vector<bool> (m, false));
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (!visited[i][j] && grid[i][j] > 0 && bfs(n,m,i,j,grid,visited) % k == 0) {
+                    res++;
+                }
+            }
+        }
+        return res;
+    }
+
+    int bfs(int n, int m, int x, int y, vector<vector<int>>& grid, vector<vector<bool>>& visited) {
+        vector<int> x_dir = {-1,1,0,0};
+        vector<int> y_dir = {0,0,-1,1};
+        queue<pair<int,int>> q;
+        visited[x][y] = true;
+        q.push({x,y});
+        int sum = 0;
+        while (!q.empty()) {
+            auto& u = q.front();
+            q.pop();
+            for (int i = 0; i < 4; ++i) {
+                int new_x = u.first + x_dir[i], new_y = u.second + y_dir[i];
+                if (new_x < 0 || new_y < 0 || new_x >= n || new_y >= m || grid[new_x][new_y] == 0) continue;
+                if (!visited[new_x][new_y]) {
+                    visited[new_x][new_y] = true;
+                    q.push({new_x, new_y});
+                    sum += grid[new_x][new_y];
+                }
+            }
+        }
+        return sum;
+    }
+};
+
+// 3882. Minimum XOR Path in a Grid
+class problem3882 {
+public:
+    int minCost(vector<vector<int>>& grid) {
+        // classical dp is not suitable for this problem because the bitwise XOR is non-monotonic - an intermediate path with an larger XOR value can later yield a smaller final XOR value when combined with subsequent cell values. Therefore we cannot greedily track only the minimum XOR value at each cell.
+        int n = grid.size(), m = grid[0].size();
+        vector<vector<vector<bool>>> dp(n, vector<vector<bool>> (m, vector<bool> (1<<10, false)));
+        dp[0][0][grid[0][0]] = true;
+        for (int i = 1; i < n; ++i) {
+            for (int k = 0; k < (1<<10);++k) {
+                if (dp[i-1][0][k]) {
+                    dp[i][0][k^grid[i][0]] = true;
+                }
+            }
+        }
+        for (int i = 1; i < m; ++i) {
+            for (int k = 0; k < (1<<10);++k) {
+                if (dp[0][i-1][k]) {
+                    dp[0][i][k^grid[0][i]] = true;
+                }
+            }
+        }
+        for (int i = 1; i < n; ++i) {
+            for (int j = 1; j < m; ++j) {
+                for (int k = 0; k < (1<<10); ++k) {
+                    if (dp[i-1][j][k]) {
+                        dp[i][j][k^grid[i][j]] = true;
+                    }
+                    if (dp[i][j-1][k]) {
+                        dp[i][j][k^grid[i][j]] = true;
+                    }
+                }
+            }
+        }
+        
+        for (int i = 0; i < (1<<10); ++i) {
+            if (dp[n-1][m-1][i]) {
+                return i;
+            }
+            // cout << i << ": " << dp[n-1][m-1][i] << "\n";
+        }
+        return 0;
+    }
+};
+
+// problem 3665. Twisted Mirror Path Count
+class problem3665 {
+public:
+    int uniquePaths(vector<vector<int>>& grid) {
+        constexpr int MOD = 1'000'000'007;
+
+        int m = grid.size();
+        int n = grid[0].size();
+
+        // f[i][j][0]: enter (i, j) by moving down
+        // f[i][j][1]: enter (i, j) by moving right
+        vector<vector<array<long long, 2>>> f(
+            m, vector<array<long long, 2>>(n, {0, 0}));
+
+        f[0][0][0] = 1;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (i > 0) {
+                    if (grid[i - 1][j] == 0) {
+                        f[i][j][0] = (f[i - 1][j][0] + f[i - 1][j][1]) % MOD;
+                    } else {
+                        f[i][j][0] = f[i - 1][j][1];
+                    }
+                }
+
+                if (j > 0) {
+                    if (grid[i][j - 1] == 0) {
+                        f[i][j][1] = (f[i][j - 1][0] + f[i][j - 1][1]) % MOD;
+                    } else {
+                        f[i][j][1] = f[i][j - 1][0];
+                    }
+                }
+            }
+        }
+
+        return (f[m - 1][n - 1][0] + f[m - 1][n - 1][1]) % MOD;
+    }
+};
+
+// problem 453. Minimum Moves to Equal Array Elements
+class problem453 {
+public:
+    int minMoves(vector<int>& nums) {
+        int sum = 0;
+        for (int i = 0; i < nums.size(); ++i) sum += nums[i];
+        return sum - *min_element(nums.begin(), nums.end()) * nums.size();
+    }
+};
+
+//problem 2747. Count Zero Request Servers
+class problem2747 {
+public:
+    vector<int> countServers(int n, vector<vector<int>>& logs, int x, vector<int>& queries) {
+        sort(logs.begin(), logs.end(), [&](auto a, auto b) {
+            return a[1] < b[1];
+        });
+        vector<int> ids(queries.size());
+        for (int i = 0; i < ids.size(); ++i) ids[i] = i;
+        sort(ids.begin(), ids.end(), [&](auto a, auto b){
+            return queries[a] < queries[b];
+        });
+        // for (int i = 0; i < logs.size(); ++i) cout << logs[i][0] << " " << logs[i][1] << "\n";
+        vector<int> res(queries.size());
+        vector<int> cnt(n + 1);
+        int left = 0, right = 0, numServerReceive = 0;
+        for (int i: ids) {
+            while (right < logs.size() && logs[right][1] <= queries[i]) {
+                if (cnt[logs[right][0]] == 0) {
+                    numServerReceive++;
+                }
+                cnt[logs[right][0]]++;
+                right++;
+            }
+
+            while (left < logs.size() && logs[left][1] < queries[i] - x) {
+                cnt[logs[left][0]]--;
+                if (cnt[logs[left][0]] == 0) {
+                    numServerReceive--;
+                }    
+                left++;
+            }
+            res[i] = n - numServerReceive;
+        }
+
+        return res;
+    }
+};
+
+//problem 1606. Find Servers That Handled Most Number of Requests
+class problem1606 {
+public:
+    vector<int> busiestServers(int k, vector<int>& arrival, vector<int>& load) {
+        // busy: pair<server_idx, time_complete>
+        // idle: server_idx
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> busy;
+        set<int> idle;
+        vector<int> cnt(k,0);
+        for (int i = 0; i < k; ++i) idle.insert(i);
+        for (int i = 0; i < arrival.size(); ++i) {
+            while (!busy.empty() && busy.top().second <= arrival[i]) {
+                int server_top = busy.top().first;
+                busy.pop();
+                idle.insert(server_top);
+            }
+            if (!idle.empty()) {
+                auto server_it = idle.lower_bound(i % k);
+                if (server_it == idle.end()) server_it = idle.begin();
+                busy.push({*server_it, arrival[i] + load[i]});
+                cnt[*server_it]++;
+                idle.erase(*server_it);
+            }
+        }
+        int busiest_server = *max_element(cnt.begin(), cnt.end());
+        cout << busiest_server << "\n";
+        vector<int> res;
+        for (int i = 0; i < k; ++i) {
+            if (cnt[i] == busiest_server) res.push_back(i);
+        }
+        return res;
+    }
+};
+
+// problem 3693. Climbing Stairs II
+class problem3693 {
+public:
+    int climbStairs(int n, vector<int>& costs) {
+        vector<int> dp(n+1);
+        dp[0] = 0;
+        if (n >= 1) dp[1] = dp[0] + costs[0] + 1;
+        if (n >= 2) dp[2] = min(dp[0] + costs[1] + 2*2, dp[1] + costs[1] + 1);
+        if (n >= 3) dp[3] = min(dp[0] + costs[2] + 3*3, min(dp[1] + costs[2] + 2*2, dp[2] + costs[2] + 1));
+        for (int i = 4; i < n + 1; ++i) {
+            dp[i] = min(dp[i - 3] + costs[i - 1] + 3*3, min(dp[i - 2] + costs[i - 1] + 2*2, dp[i - 1] + costs[i - 1] + 1));
+        } 
+        return dp[n];
+    }
+};
+
+// problem 3789. Minimum Cost to Acquire Required Items
+class problem3789 {
+public:
+    long long minimumCost(int cost1, int cost2, int costBoth, int need1, int need2) {
+        // x + z >= need1 --> x >= max(0, need1 - z)
+        // y + z >= need2 --> y >= max(0, need2 - z)
+        // Cost = x*cost1 + y*cost2 + z*costBoth
+        // >= max(0, need1 - z)*cost1 + max(0, need2 - z)*cost2 + z*costBoth
+        // = (x + z)cost1 + (y + z)cost2 + z*costResidual
+        // >= (max(0, need1 - z) + z)cost1 + (max(0, need2 - z)+z)cost2 + z*costResidual
+        // = max(z,need1)*cost1 + max(z,need2)*cost2 + z*costResidual
+        // with costResidual = costBoth - cost1 - cost2
+        // sol: for z from 0 to max(need1,need2)
+        // -> calculate cost = max(z,need1)*cost1 + max(z,need2)*cost2 + z*costResidual -> minCost
+
+        // exp: cost1 = 3, cost2 = 2, costBoth = 1, need1 = 3, need2 = 2
+        // z = 0 -> cost = 3*3 + 2*2 + 0*(-4) = 13
+        // z = 1 -> cost = 3*3 + 2*2 + 1*(-4) = 9
+        // z = 2 -> cost = 3*3 + 2*2 + 2*(-4) = 5
+        // z = 3 -> cost = 3*3 + 3*2 - 3*(-4) = 3 <- minCost
+
+        // exp: cost1 = 5, cost2 = 4, costBoth = 15, need1 = 2, need2 = 3
+        // z = 0 -> cost = 2*5 + 3*4 + 0*6 = 22
+        // z = 1 -> cost = 2*5 + 3*4 + 1*6 = 28
+        // z = 2 -> cost = 2*5 + 3*4 + 2*6 = 34
+        // z = 3 -> cost = 3*5 + 3*4 + 3*6 = 40
+
+        long long minCost = LLONG_MAX;
+        vector<int> point = {0, need1, need2};
+        for (int z: point) {
+            long long cost = 1ll*max(z,need1)*cost1 + 1ll*max(z,need2)*cost2 + 1ll*z*(costBoth - cost1 - cost2);
+            minCost = min(minCost, cost);
+        }
+        return minCost;
+    }
+};
+
+// problem 1524. Number of Sub-arrays With Odd Sum
+class problem1524 {
+public:
+    int numOfSubarrays(vector<int>& arr) {
+        // Naive approach: O(n^2)
+        // optimizer: prefix sum
+        // observation: odd sum subarray = even sum - odd sum = odd sum - even sum
+        // even sum subarray = even sum - even sum = odd sum - odd sum
+        int cnt = 0, n = arr.size(), mod = 1e9+7;
+        vector<int> prefixSum(n + 1, 0);
+        int cnt_odd_sum = 0, cnt_even_sum = 1; // sum = 0 is even
+        for (int i = 1; i < n + 1; ++i) {
+            prefixSum[i] = prefixSum[i - 1] + arr[i - 1];
+            if (prefixSum[i] & 1) {
+                cnt += cnt_even_sum;
+                cnt_odd_sum++;
+            }
+            else {
+                cnt += cnt_odd_sum;
+                cnt_even_sum++;
+            }
+            cnt %= mod;
+        }
+        return cnt;
+    }
+};
+
+// problem 2914. Minimum number of changes to make binary string beautiful
+class problem2914 {
+public:
+    int minChanges(string s) {
+        // 11011001100011101001
+        int cnt = 0;
+        for (int i = 0; i < s.size(); i+=2) {
+            if (s[i] != s[i+1]) cnt++;
+        }
+        return cnt;
+    }
+};
+
+void nam_moi_Binh_Ngo() {
+    cout << "Chuc mung nam moi 2026 Binh Ngo" << endl;
+    cout << "Thanh cong - Hoc gioi - Hoc bong - GPA > 3.6 - Co nguoi yeu - Tang chieu cao:))))" << endl;
+}
 
 int main() {
     cout << "I'm Minh. I am studying Bachelor of Computer Science at Ho Chi Minh City University of Technology (HCMUT, VNU-HCM).\n";
@@ -1286,7 +1750,70 @@ int main() {
     // cout << endl;
 
     //problem 3740 test
-    vector<int> nums = {1,1,2,3,2,1,2};
-    problem3740 p3740;
-    cout << p3740.minimumDistance(nums) << endl;
+    // vector<int> nums = {1,1,2,3,2,1,2};
+    // problem3740 p3740;
+    // cout << p3740.minimumDistance(nums) << endl;
+
+    //problem 3742 test
+    // vector<vector<int>> grid = {{0, 1}, {2, 0}};
+    // problem3742 p3742;
+    // cout << p3742.maxPathScore(grid, 1) << endl;
+
+    //problem 1386 test
+    // vector<vector<int>> reservedSeats = {{1,2},{1,3},{1,8},{2,6},{3,1},{3,10}};
+    // problem1386 p1386;
+    // cout << p1386.maxNumberOfFamilies(3, reservedSeats) << endl;
+
+    // nam_moi_Binh_Ngo();
+
+    // problem 2265 test
+    // [4,8,5,0,1,null,6]
+    // TreeNode* root = new TreeNode(4);
+    // root->left = new TreeNode(8);
+    // root->right = new TreeNode(5);
+    // root->left->left = new TreeNode(0);
+    // root->left->right = new TreeNode(1);
+    // root->right->right = new TreeNode(6);
+    // problem2265 p2265;
+    // cout << p2265.averageOfSubtree(root) << endl;
+    // return 0;
+
+    // problem 1541 test
+    // string s = "(()))";
+    // problem1541 p1541;
+    // int res = p1541.minInsertions(s);
+    // cout << p1541.minInsertions(s) << endl;
+
+    //problem 3619 test
+    // vector<vector<int>> grid = {
+    // {0,0,0},
+    // {0,0,1},
+    // {11,0,6},
+    // {0,10,2},
+    // {0,0,0},
+    // {8,0,0}};
+    // problem3619 p3619;
+    // int k = 19;
+    // cout << p3619.countIslands(grid, k) << endl;
+
+    // problem 3882 test
+    // vector<vector<int>> grid = {
+    //     {26,24,3},
+    //     {2,22,17}
+    // };
+    // problem3882 p3882;
+    // cout << p3882.minCost(grid) << endl;
+
+    // problem 1606 test
+    int k = 3;
+    vector<int> arrival = {1, 2, 3, 4, 5};
+    vector<int> load = {5, 2, 3, 3, 3};
+    problem1606 p1606;
+    vector<int> res = p1606.busiestServers(k, arrival, load);
+    for (int server : res) {
+        cout << server << " ";
+    }
+    cout << endl;
+
+    return 0;
 }
